@@ -1,4 +1,7 @@
+#include <stdio.h>
+#include <string.h>
 #include <iostream>
+
 
 // Definieren aller global benötigten Variablen
 char spielfeld[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -9,6 +12,8 @@ void spielfeldAusgeben();
 int spielStatusPruefen();
 void spielerZug();
 void spielerWechseln();
+void spielSpeichern();
+void spielLaden();
 
 // Main Methode
 int main() {
@@ -68,7 +73,7 @@ int spielStatusPruefen() {
 
 void spielerZug() {
 
-    char gewähltesFeld;
+    char eingabe;
     char spielerSymbol;
 
 
@@ -80,29 +85,31 @@ void spielerZug() {
 
     printf("Spieler %d, waehle ein Feld: ", spieler);
     fflush(stdin);
-    scanf("%c", &gewähltesFeld);
+    scanf("%c", &eingabe);
     printf("\n");
 
-    if (gewähltesFeld == '1' && spielfeld[0] == '1') {
+    if (eingabe == '1' && spielfeld[0] == '1') {
         spielfeld[0] = spielerSymbol;
-    } else if (gewähltesFeld == '2' && spielfeld[1] == '2') {
+    } else if (eingabe == '2' && spielfeld[1] == '2') {
         spielfeld[1] = spielerSymbol;
-    } else if (gewähltesFeld == '3' && spielfeld[2] == '3') {
+    } else if (eingabe == '3' && spielfeld[2] == '3') {
         spielfeld[2] = spielerSymbol;
-    } else if (gewähltesFeld == '4' && spielfeld[3] == '4') {
+    } else if (eingabe == '4' && spielfeld[3] == '4') {
         spielfeld[3] = spielerSymbol;
-    } else if (gewähltesFeld == '5' && spielfeld[4] == '5') {
+    } else if (eingabe == '5' && spielfeld[4] == '5') {
         spielfeld[4] = spielerSymbol;
-    } else if (gewähltesFeld == '6' && spielfeld[5] == '6') {
+    } else if (eingabe == '6' && spielfeld[5] == '6') {
         spielfeld[5] = spielerSymbol;
-    } else if (gewähltesFeld == '7' && spielfeld[6] == '7') {
+    } else if (eingabe == '7' && spielfeld[6] == '7') {
         spielfeld[6] = spielerSymbol;
-    } else if (gewähltesFeld == '8' && spielfeld[7] == '8') {
+    } else if (eingabe == '8' && spielfeld[7] == '8') {
         spielfeld[7] = spielerSymbol;
-    } else if (gewähltesFeld == '9' && spielfeld[8] == '9') {
+    } else if (eingabe == '9' && spielfeld[8] == '9') {
         spielfeld[8] = spielerSymbol;
+    } else if (eingabe == 's' || eingabe == 'S') {
+        spielSpeichern();
     } else {
-        printf("Ungueltiger Zug!\n");
+        printf("Ungueltige Eingabe!\n");
         spielerWechseln();
     }
     spielerWechseln();
@@ -114,4 +121,48 @@ void spielerWechseln() {
     } else if (spieler == 2) {
         spieler = 1;
     }
+}
+
+void spielSpeichern() {
+
+    FILE *datei;
+
+    char spielName[100];
+
+    printf("Name unter dem das Spiel gespeichert werden soll: ");
+    scanf("%s", spielName);
+
+    datei = fopen(strcat(spielName, ".txt"), "w");
+
+    if(datei != NULL) {
+        fprintf(datei, "%s", spielfeld);
+    } else {
+        printf("Fehler beim Speichern!\n");
+    }
+    fclose(datei);
+}
+
+void spielLaden() {
+
+        FILE *datei;
+
+        char spielName[100];
+        char zeichen;
+        int i = 0;
+
+        printf("Name des gespeicherten Spiels: ");
+        scanf("%s", spielName);
+
+        datei = fopen(strcat(spielName, ".txt"), "r");
+
+        if(datei != NULL) {
+            do {
+                zeichen = fgetc(datei);
+                spielfeld[i] = zeichen;
+                i++;
+            } while (zeichen != EOF);
+        } else {
+            printf("Fehler beim Laden!\n");
+        }
+        fclose(datei);
 }
