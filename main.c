@@ -27,7 +27,7 @@ void spielfeldAusgeben();
 
 int spielStatusPruefen();
 
-void spielerEingabe();
+bool spielerEingabe();
 
 void spielerWechseln();
 
@@ -140,11 +140,11 @@ void spielStart() {
     // Spiel wird gestartet und solange durchgeführt, bis das Spiel beendet ist
     do {
         spielfeldAusgeben();
-        spielerEingabe();
+        bool zugErfolgreich = spielerEingabe();
         spielStatus = spielStatusPruefen();
 
         // Basierend auf dem Spielmodus entweder den Spieler Wechseln oder den Computer-Zug durchführen
-        if (spielStatus == 0) {
+        if (spielStatus == 0 && zugErfolgreich == true) {
             if (spielModus == 1) {
                 spielerWechseln();
             } else if (spielModus == 2) {
@@ -230,10 +230,14 @@ int spielStatusPruefen() {
 
 /*
  * Die Spieleingabe eines Spielers wird geprüft und ausgeführt
+ * @return
+ * true - Symbol wurde von Spieler gesetzt
+ * false - Symbol wurde nicht von Spieler gesetzt
  */
-void spielerEingabe() {
+bool spielerEingabe() {
 
     char eingabe;
+    bool symbolGesetzt = true;
 
     // Symbol wird basierend auf Spieler geändert
     if (spieler == 1) {
@@ -272,6 +276,7 @@ void spielerEingabe() {
     } else if (eingabe == '9' && spielfeld[8] == '9') {
         spielfeld[8] = spielerSymbol;
     } else if (eingabe == 's' || eingabe == 'S') {
+        symbolGesetzt = false;
         if (spielSpeichern()) {
             printf("\n");
             printf("Spiel wurde erfolgreich gespeichert!\n");
@@ -281,13 +286,16 @@ void spielerEingabe() {
             printf("Fehler beim Speichern des Spiels, setzte Spiel fort...\n");
         }
     } else if (eingabe == 'q' || eingabe == 'Q') {
+        symbolGesetzt = false;
         spielStatus = 3;
         printf("\n");
         printf("Spiel wurde beendet.\n");
     } else {
+        symbolGesetzt = false;
         printf("\n");
         printf("Ungueltige Eingabe!\n");
     }
+    return symbolGesetzt;
 }
 
 /*
