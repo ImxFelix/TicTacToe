@@ -45,6 +45,9 @@ int main() {
             case '1':
                 printf("\n");
                 printf("Neues Spiel wird erstellt...\n");
+                for (int i = 0; i < sizeof(spielfeld); i++) {
+                    spielfeld[i] = i + 1 + '0';
+                }
                 spielStart();
                 break;
             case '2':
@@ -78,10 +81,6 @@ int main() {
 void spielStart() {
 
     spielStatus = 0;
-
-    for (int i = 0; i < sizeof(spielfeld); i++) {
-        spielfeld[i] = i + 1 + '0';
-    }
 
     // TODO: Abfrage Bot oder Multiplayer
     // TODO: Implemantation Bot
@@ -259,10 +258,10 @@ bool spielLaden() {
     datei = fopen(strcat(spielName, ".txt"), "r");
 
     if (datei != NULL) {
-        // TODO: Laden fixen
+        // TODO: Richter Spieler Anfangen
         do {
             zeichen = fgetc(datei);
-            spielfeld[i] = (char) zeichen;
+            spielfeld[i] = zeichen;
             i++;
         } while (zeichen != EOF);
         fclose(datei);
