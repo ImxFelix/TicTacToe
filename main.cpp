@@ -5,7 +5,7 @@
 
 // Definieren aller global benötigten Variablen
 char spielfeld[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
-int spieler = 1;
+int spieler = -1;
 int spielStatus = -1;
 char spielerSymbol = '0';
 
@@ -81,6 +81,7 @@ int main() {
 void spielStart() {
 
     spielStatus = 0;
+    spieler = 1;
 
     // TODO: Abfrage Bot oder Multiplayer
     // TODO: Implemantation Bot
@@ -124,7 +125,7 @@ void spielfeldAusgeben() {
 // 0 -> Spiel noch nicht beendet
 // 1 -> Spiel wurde gewonnen
 // 2 -> Spiel wurde unentschieden beendet
-// 3 -> Spiel wurde gespeichert
+// 3 -> Spiel wurde beendet/gespeichert
 int spielStatusPruefen() {
 
     if (
@@ -198,9 +199,9 @@ void spielerEingabe() {
             printf("Fehler beim Speichern des Spiels, setzte Spiel fort...\n");
         }
     } else if (eingabe == 'q' || eingabe == 'Q') {
+        spielStatus = 3;
         printf("\n");
         printf("Spiel wurde beendet.\n");
-        exit(0);
     } else {
         printf("\n");
         printf("Ungueltige Eingabe!\n");
