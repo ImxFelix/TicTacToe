@@ -74,7 +74,6 @@ int main() {
 
     } while (eingabe != 3);
 
-
     return 0;
 }
 
@@ -96,7 +95,6 @@ void spielStart() {
         spielfeldAusgeben();
     }
 
-
     if (spielStatus == 1) {
         printf("\n");
         printf("Spieler %d (%c) hat gewonnen!\n", spieler, spielerSymbol);
@@ -104,9 +102,7 @@ void spielStart() {
         printf("\n");
         printf("Spiel wurde unentschieden beendet!\n");
     }
-
 }
-
 
 // Ausgeben des Spielfeldes auf der Konsole
 void spielfeldAusgeben() {
@@ -121,11 +117,13 @@ void spielfeldAusgeben() {
 
 }
 
-// Spielstatus überprüfen
-// 0 -> Spiel noch nicht beendet
-// 1 -> Spiel wurde gewonnen
-// 2 -> Spiel wurde unentschieden beendet
-// 3 -> Spiel wurde beendet/gespeichert
+/*
+ * Spielstatus überprüfen
+ * 0 -> Spiel noch nicht beendet
+ * 1 -> Spiel wurde gewonnen
+ * 2 -> Spiel wurde unentschieden beendet
+ * 3 -> Spiel wurde beendet/gespeichert
+ */
 int spielStatusPruefen() {
 
     if (
@@ -207,7 +205,6 @@ void spielerEingabe() {
         printf("Ungueltige Eingabe!\n");
         spielerWechseln();
     }
-
     spielerWechseln();
 }
 
@@ -240,7 +237,6 @@ bool spielSpeichern() {
         fclose(datei);
         return false;
     }
-
 }
 
 bool spielLaden() {
