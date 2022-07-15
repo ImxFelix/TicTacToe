@@ -96,6 +96,7 @@ void spielStart() {
     }
 
     if (spielStatus == 1) {
+        spielerWechseln();
         printf("\n");
         printf("Spieler %d (%c) hat gewonnen!\n", spieler, spielerSymbol);
     } else if (spielStatus == 2) {
