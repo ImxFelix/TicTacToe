@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <iostream>
+#include <stdbool.h>
 
 
 // Definieren aller global benötigten Variablen
@@ -320,7 +320,6 @@ bool spielLaden() {
     datei = fopen(strcat(spielName, ".txt"), "r");
 
     if (datei != NULL) {
-        // TODO: Richter Spieler Anfangen
         do {
             zeichen = fgetc(datei);
             spielfeld[i] = zeichen;
