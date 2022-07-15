@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <iostream>
 
 
@@ -7,7 +9,9 @@
 char spielfeld[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 int spieler = -1;
 int spielStatus = -1;
+int spielModus = -1;
 char spielerSymbol = '0';
+bool spielerZweiStartet = false;
 
 // Definieren aller benötigten Methoden
 void spielfeldAusgeben();
@@ -23,6 +27,8 @@ bool spielSpeichern();
 bool spielLaden();
 
 void spielStart();
+
+void botZug();
 
 // Main Methode
 int main() {
@@ -80,15 +86,53 @@ int main() {
 void spielStart() {
 
     spielStatus = 0;
+    spielModus = -1;
     spieler = 1;
 
-    // TODO: Abfrage Bot oder Multiplayer
-    // TODO: Implemantation Bot
+
+
+    do {
+        printf("\n");
+        printf("Waehlen sie den Spielmodus\n");
+        printf("1 - Spieler gegen Spieler\n");
+        printf("2 - Spieler gegen Computer\n");
+        printf("Ihre Eingabe: ");
+
+        fflush(stdin);
+        scanf("%d", &spielModus);
+
+        if (spielModus != 1 && spielModus != 2) {
+            printf("\n");
+            printf("Ungueltige Eingabe!\n");
+        }
+    } while (spielModus != 1 && spielModus != 2);
+
+    printf("\n");
+    printf("Waehlen sie Ihr Symbol\n");
+
+    if (spielerZweiStartet == true) {
+        if (spielModus == 1) {
+            spielerWechseln();
+        } else if (spielModus == 2) {
+            botZug();
+        }
+        spielerZweiStartet = false;
+    }
 
     do {
         spielfeldAusgeben();
         spielerEingabe();
         spielStatus = spielStatusPruefen();
+        if (spielStatus == 0) {
+            if (spielModus == 1) {
+                spielerWechseln();
+            } else if (spielModus == 2) {
+                botZug();
+                if (spielStatus = spielStatusPruefen() == 1) {
+                    spielStatus = 4;
+                }
+            }
+        }
     } while (spielStatus == 0);
 
     if (spielStatus != 3) {
@@ -96,12 +140,14 @@ void spielStart() {
     }
 
     if (spielStatus == 1) {
-        spielerWechseln();
         printf("\n");
         printf("Spieler %d (%c) hat gewonnen!\n", spieler, spielerSymbol);
     } else if (spielStatus == 2) {
         printf("\n");
         printf("Spiel wurde unentschieden beendet!\n");
+    } else if (spielStatus == 4) {
+        printf("\n");
+        printf("Das Spiel wurde vom Computer gewonnen!\n");
     }
 }
 
@@ -124,6 +170,7 @@ void spielfeldAusgeben() {
  * 1 -> Spiel wurde gewonnen
  * 2 -> Spiel wurde unentschieden beendet
  * 3 -> Spiel wurde beendet/gespeichert
+ * 4 -> Spiel wurde von Computer gewonnen
  */
 int spielStatusPruefen() {
 
@@ -146,6 +193,8 @@ int spielStatusPruefen() {
         return 2;
     } else if (spielStatus == 3) {
         return 3;
+    } else if (spielStatus == 4) {
+        return 4;
     } else {
         return 0;
     }
@@ -204,9 +253,22 @@ void spielerEingabe() {
     } else {
         printf("\n");
         printf("Ungueltige Eingabe!\n");
-        spielerWechseln();
     }
-    spielerWechseln();
+}
+
+void botZug() {
+
+    bool feldGefunden = false;
+    do {
+
+        srand(time(NULL));
+        int zufallsZahl = rand() % 9 + 1;
+
+        if(spielfeld[zufallsZahl] != 'X' && spielfeld[zufallsZahl] != 'O') {
+            spielfeld[zufallsZahl] = 'O';
+            feldGefunden = true;
+        }
+    } while (!feldGefunden);
 }
 
 void spielerWechseln() {
@@ -247,6 +309,8 @@ bool spielLaden() {
     char spielName[100];
     char zeichen;
     int i = 0;
+    int anzahlZuegeX = 0;
+    int anzahlZuegeO = 0;
 
     printf("\n");
     printf("Name des gespeicherten Spiels: ");
@@ -260,8 +324,18 @@ bool spielLaden() {
         do {
             zeichen = fgetc(datei);
             spielfeld[i] = zeichen;
+            if (zeichen == 'X') {
+                anzahlZuegeX++;
+            } else if (zeichen == 'O') {
+                anzahlZuegeO++;
+            }
             i++;
         } while (zeichen != EOF);
+
+        if (anzahlZuegeO < anzahlZuegeX) {
+            spielerZweiStartet = true;
+        }
+
         fclose(datei);
         return true;
     } else {
