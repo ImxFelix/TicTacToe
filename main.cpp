@@ -6,34 +6,112 @@
 // Definieren aller global benötigten Variablen
 char spielfeld[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 int spieler = 1;
+int spielStatus = -1;
+char spielerSymbol = '0';
 
 // Definieren aller benötigten Methoden
 void spielfeldAusgeben();
+
 int spielStatusPruefen();
-void spielerZug();
+
+void spielerEingabe();
+
 void spielerWechseln();
-void spielSpeichern();
-void spielLaden();
+
+bool spielSpeichern();
+
+bool spielLaden();
+
+void spielStart();
 
 // Main Methode
 int main() {
 
-    int spielStatus;
+    char eingabe;
 
     do {
-        spielfeldAusgeben();
-        spielerZug();
-        spielStatus = spielStatusPruefen();
-    } while (spielStatus == 0);
+        printf("\n");
+        printf("Tic Tac Toe Hauptmenu\n");
+        printf("1 - Neues Spiel erstellen\n");
+        printf("2 - Gepeichertes Spiel Laden\n");
+        printf("3 - Programm beenden\n");
+        printf("\n");
+
+        printf("Bitte eine Zahl zwischen 1 und 3 eingeben: ");
+        fflush(stdin);
+        scanf("%c", &eingabe);
+
+        switch (eingabe) {
+            case '1':
+                printf("\n");
+                printf("Neues Spiel wird erstellt...\n");
+                spielStart();
+                break;
+            case '2':
+                printf("\n");
+                printf("Ladevorgang wird gestartet...\n");
+                if (spielLaden()) {
+                    printf("\n");
+                    printf("Spiel wurde erfolgreich geladen!\n");
+                    spielStart();
+                } else {
+                    printf("\n");
+                    printf("Laden fehlgeschlagen!\n");
+                }
+                break;
+            case '3':
+                printf("\n");
+                printf("Programm wird beendet...\n");
+                exit(0);
+            default:
+                printf("\n");
+                printf("Ungueltige Eingabe!\n");
+                break;
+        }
+
+    } while (eingabe != 3);
+
 
     return 0;
 }
 
+void spielStart() {
+
+    spielStatus = 0;
+
+    for (int i = 0; i < sizeof(spielfeld); i++) {
+        spielfeld[i] = i + 1 + '0';
+    }
+
+    // TODO: Abfrage Bot oder Multiplayer
+    // TODO: Implemantation Bot
+
+    do {
+        spielfeldAusgeben();
+        spielerEingabe();
+        spielStatus = spielStatusPruefen();
+    } while (spielStatus == 0);
+
+    if (spielStatus != 3) {
+        spielfeldAusgeben();
+    }
+
+
+    if (spielStatus == 1) {
+        printf("\n");
+        printf("Spieler %d (%c) hat gewonnen!\n", spieler, spielerSymbol);
+    } else if (spielStatus == 2) {
+        printf("\n");
+        printf("Spiel wurde unentschieden beendet!\n");
+    }
+
+}
+
+
 // Ausgeben des Spielfeldes auf der Konsole
 void spielfeldAusgeben() {
 
-    printf("\nTic-Tac-Toe\n");
-
+    printf("\n");
     printf(" %c | %c | %c\n", spielfeld[0], spielfeld[1], spielfeld[2]);
     printf("---|---|---\n");
     printf(" %c | %c | %c\n", spielfeld[3], spielfeld[4], spielfeld[5]);
@@ -47,6 +125,7 @@ void spielfeldAusgeben() {
 // 0 -> Spiel noch nicht beendet
 // 1 -> Spiel wurde gewonnen
 // 2 -> Spiel wurde unentschieden beendet
+// 3 -> Spiel wurde gespeichert
 int spielStatusPruefen() {
 
     if (
@@ -66,16 +145,16 @@ int spielStatusPruefen() {
                spielfeld[3] != '4' && spielfeld[4] != '5' && spielfeld[5] != '6' &&
                spielfeld[6] != '7' && spielfeld[7] != '8' && spielfeld[8] != '9') {
         return 2;
+    } else if (spielStatus == 3) {
+        return 3;
     } else {
         return 0;
     }
 }
 
-void spielerZug() {
+void spielerEingabe() {
 
     char eingabe;
-    char spielerSymbol;
-
 
     if (spieler == 1) {
         spielerSymbol = 'X';
@@ -83,10 +162,14 @@ void spielerZug() {
         spielerSymbol = 'O';
     }
 
-    printf("Spieler %d, waehle ein Feld: ", spieler);
+    printf("\n");
+    printf("Spieler %d (%c) ist am Zug!\n", spieler, spielerSymbol);
+    printf("Bitte waehle ein freies Spielfeld aus\n");
+    printf("oder 's' um das Spiel zu speichern\n");
+    printf("oder 'q' um das Spiel zu beenden\n");
+    printf("Deine Eingabe: ");
     fflush(stdin);
     scanf("%c", &eingabe);
-    printf("\n");
 
     if (eingabe == '1' && spielfeld[0] == '1') {
         spielfeld[0] = spielerSymbol;
@@ -107,11 +190,24 @@ void spielerZug() {
     } else if (eingabe == '9' && spielfeld[8] == '9') {
         spielfeld[8] = spielerSymbol;
     } else if (eingabe == 's' || eingabe == 'S') {
-        spielSpeichern();
+        if (spielSpeichern()) {
+            printf("\n");
+            printf("Spiel wurde erfolgreich gespeichert!\n");
+            spielStatus = 3;
+        } else {
+            printf("\n");
+            printf("Fehler beim Speichern des Spiels, setzte Spiel fort...\n");
+        }
+    } else if (eingabe == 'q' || eingabe == 'Q') {
+        printf("\n");
+        printf("Spiel wurde beendet.\n");
+        exit(0);
     } else {
+        printf("\n");
         printf("Ungueltige Eingabe!\n");
         spielerWechseln();
     }
+
     spielerWechseln();
 }
 
@@ -123,46 +219,56 @@ void spielerWechseln() {
     }
 }
 
-void spielSpeichern() {
+bool spielSpeichern() {
 
     FILE *datei;
 
     char spielName[100];
 
+    printf("\n");
     printf("Name unter dem das Spiel gespeichert werden soll: ");
+    fflush(stdin);
     scanf("%s", spielName);
 
     datei = fopen(strcat(spielName, ".txt"), "w");
 
-    if(datei != NULL) {
+    if (datei != NULL) {
         fprintf(datei, "%s", spielfeld);
+        fclose(datei);
+        return true;
     } else {
-        printf("Fehler beim Speichern!\n");
+        fclose(datei);
+        return false;
     }
-    fclose(datei);
+
 }
 
-void spielLaden() {
+bool spielLaden() {
 
-        FILE *datei;
+    FILE *datei;
 
-        char spielName[100];
-        char zeichen;
-        int i = 0;
+    char spielName[100];
+    char zeichen;
+    int i = 0;
 
-        printf("Name des gespeicherten Spiels: ");
-        scanf("%s", spielName);
+    printf("\n");
+    printf("Name des gespeicherten Spiels: ");
+    fflush(stdin);
+    scanf("%s", spielName);
 
-        datei = fopen(strcat(spielName, ".txt"), "r");
+    datei = fopen(strcat(spielName, ".txt"), "r");
 
-        if(datei != NULL) {
-            do {
-                zeichen = fgetc(datei);
-                spielfeld[i] = zeichen;
-                i++;
-            } while (zeichen != EOF);
-        } else {
-            printf("Fehler beim Laden!\n");
-        }
+    if (datei != NULL) {
+        // TODO: Laden fixen
+        do {
+            zeichen = fgetc(datei);
+            spielfeld[i] = (char) zeichen;
+            i++;
+        } while (zeichen != EOF);
         fclose(datei);
+        return true;
+    } else {
+        fclose(datei);
+        return false;
+    }
 }
